@@ -10,7 +10,7 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -241,7 +241,7 @@ void
 AG_GraphEdgeLabel(AG_GraphEdge *ge, const char *fmt, ...)
 {
 	va_list ap;
-	
+
 	AG_ObjectLock(ge->graph);
 	va_start(ap, fmt);
 	Vsnprintf(ge->labelTxt, sizeof(ge->labelTxt), fmt, ap);
@@ -477,7 +477,7 @@ AG_GraphFreeVertices(AG_Graph *gf)
 	AG_GraphEdge *edge, *edgeNext;
 
 	AG_ObjectLock(gf);
-	
+
 	for (vtx = TAILQ_FIRST(&gf->vertices);
 	     vtx != TAILQ_END(&gf->vertices);
 	     vtx = vtxNext) {
@@ -499,7 +499,7 @@ AG_GraphFreeVertices(AG_Graph *gf)
 	gf->yMin = 0;
 	gf->yMax = 0;
 	gf->flags &= ~(AG_GRAPH_DRAGGING);
-	
+
 	AG_ObjectUnlock(gf);
 	AG_Redraw(gf);
 }
@@ -579,6 +579,31 @@ Draw(void *obj)
 		    edge->v2->x - xOffs,
 		    edge->v2->y - yOffs,
 		    &edge->edgeColor);
+
+		double edge_length = sqrt(powf(edge->v1->x - edge->v2->x, 2) + powf(edge->v1->y - edge->v2->y, 2));
+
+		/* https://math.stackexchange.com/a/1314050 */
+
+		AG_Pt V1,V2,V3;
+		V1.x = edge->v2->x - xOffs;
+		V1.y = edge->v2->y - yOffs;
+
+		V2.x = edge->v2->x + (25 / edge_length) *
+			((edge->v1->x - edge->v2->x) * cos(0.3) +
+			(edge->v1->y - edge->v2->y) * sin(0.3)) - xOffs;
+		V2.y = edge->v2->y + (25 / edge_length) *
+			((edge->v1->y - edge->v2->y) * cos(0.3) -
+			(edge->v1->x - edge->v2->x) * sin(0.3)) - yOffs;
+
+		V3.x = edge->v2->x + (25 / edge_length) *
+			((edge->v1->x - edge->v2->x) * cos(0.3) -
+			(edge->v1->y - edge->v2->y) * sin(0.3)) - xOffs;
+		V3.y = edge->v2->y + (25 / edge_length) *
+			((edge->v1->y - edge->v2->y) * cos(0.3) +
+			(edge->v1->x - edge->v2->x) * sin(0.3)) - yOffs;
+
+		AG_DrawTriangle(gf, &V1, &V2, &V3, &edge->edgeColor);
+
 
 		if (edge->labelSu >= 0) {
 			AG_Surface *su = WSURFACE(gf,edge->labelSu);
@@ -686,7 +711,7 @@ AG_GraphVertex *
 AG_GraphVertexNew(AG_Graph *gf, void *userPtr)
 {
 	AG_GraphVertex *vtx;
-	
+
 	vtx = Malloc(sizeof(AG_GraphVertex));
 	vtx->labelTxt[0] = '\0';
 	vtx->labelSu = -1;
@@ -746,7 +771,7 @@ AG_GraphVertexLabel(AG_GraphVertex *vtx, const char *fmt, ...)
 {
 	char s[AG_GRAPH_LABEL_MAX];
 	va_list ap;
-	
+
 	va_start(ap, fmt);
 	Vsnprintf(s, sizeof(s), fmt, ap);
 	va_end(ap);
@@ -772,7 +797,7 @@ void
 AG_GraphVertexPosition(AG_GraphVertex *vtx, int x, int y)
 {
 	AG_Graph *gf = vtx->graph;
-	
+
 	AG_ObjectLock(gf);
 
 	vtx->x = x;
@@ -782,7 +807,7 @@ AG_GraphVertexPosition(AG_GraphVertex *vtx, int x, int y)
 	if (y < gf->yMin) { gf->yMin = y; }
 	if (x > gf->xMax) { gf->xMax = x; }
 	if (y > gf->yMax) { gf->yMax = y; }
-	
+
 	AG_ObjectUnlock(gf);
 	AG_Redraw(gf);
 }
@@ -814,7 +839,7 @@ AG_GraphVertexPopupMenu(AG_GraphVertex *vtx, struct ag_popup_menu *pm)
 	AG_ObjectUnlock(vtx->graph);
 }
 
-static int 
+static int
 CompareVertices(const void *p1, const void *p2)
 {
 	const AG_GraphVertex *v1 = *(const void **)p1;
@@ -892,7 +917,7 @@ AG_GraphAutoPlace(AG_Graph *gf, Uint w, Uint h)
 	AG_GraphVertex **vSorted, *vtx;
 	Uint i, nSorted=0;
 	int tx, ty;
-	
+
 	AG_ObjectLock(gf);
 
 	if (gf->nvertices == 0 || gf->nedges == 0) {
