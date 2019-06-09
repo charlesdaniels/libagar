@@ -43,6 +43,7 @@ SRCS=	agartest.c ${SRCS_EXTRA} \
 	pane.c \
 	palette.c \
 	plotting.c \
+	plotting_realtime.c \
 	rendertosurface.c \
 	scrollbar.c \
 	scrollview.c \

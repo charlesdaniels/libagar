@@ -47,6 +47,7 @@ extern const AG_TestCase objSystemTest;
 extern const AG_TestCase paletteTest;
 extern const AG_TestCase paneTest;
 extern const AG_TestCase plottingTest;
+extern const AG_TestCase realTimePlottingTest;
 extern const AG_TestCase renderToSurfaceTest;
 extern const AG_TestCase scrollbarTest;
 extern const AG_TestCase scrollviewTest;
@@ -104,6 +105,7 @@ const AG_TestCase *testCases[] = {
 	&paletteTest,
 	&paneTest,
 	&plottingTest,
+	&realTimePlottingTest,
 	&renderToSurfaceTest,
 	&scrollbarTest,
 	&scrollviewTest,
